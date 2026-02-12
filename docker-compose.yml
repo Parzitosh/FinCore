@@ -1,0 +1,33 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: fincore_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: fincore
+      POSTGRES_PASSWORD: fincore123
+      POSTGRES_DB: fincore_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    container_name: fincore_redis
+    ports:
+      - "6379:6379"
+
+  gateway:
+    build: ./services/gateway
+    container_name: fincore_gateway
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
+    env_file:
+      - .env
+
+volumes:
+  postgres_data:
