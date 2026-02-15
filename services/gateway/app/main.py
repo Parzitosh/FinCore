@@ -1,5 +1,6 @@
 from fastapi import FastAPI
-from app.database import test_connection
+from sqlalchemy import text
+from app.db.session import engine
 
 app = FastAPI(title="FinCore Gateway")
 
@@ -9,6 +10,9 @@ def health():
 
 @app.get("/health/db")
 def db_health():
-    if test_connection():
+    try:
+        with engine.connect() as connection:
+            connection.execute(text("SELECT 1"))
         return {"database": "connected"}
-    return {"database": "connection failed"}
+    except Exception as e:
+        return {"database": "connection failed", "error": str(e)}
